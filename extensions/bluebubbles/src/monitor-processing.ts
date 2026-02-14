@@ -657,9 +657,9 @@ export async function processMessage(
       .trim();
   };
 
-  const ctxPayload = {
+  const ctxPayload = core.channel.reply.finalizeInboundContext({
     Body: body,
-    BodyForAgent: body,
+    BodyForAgent: rawBody,
     RawBody: rawBody,
     CommandBody: rawBody,
     BodyForCommands: rawBody,
@@ -694,7 +694,7 @@ export async function processMessage(
     OriginatingTo: `bluebubbles:${outboundTarget}`,
     WasMentioned: effectiveWasMentioned,
     CommandAuthorized: commandAuthorized,
-  };
+  });
 
   let sentMessage = false;
   let streamingActive = false;
