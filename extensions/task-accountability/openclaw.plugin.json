@@ -1,7 +1,7 @@
 {
   "id": "task-accountability",
   "name": "Task Accountability",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Enforces task accountability by requiring GitHub issues for all work",
   "configSchema": {
     "type": "object",
@@ -26,6 +26,14 @@
         "type": "number",
         "description": "Only require issues for tasks longer than this (based on tool calls)",
         "default": 30
+      },
+      "instructions": {
+        "oneOf": [{ "type": "string" }, { "type": "boolean", "const": false }],
+        "description": "Custom instructions to inject (string), or false to disable instruction injection"
+      },
+      "instructionsFile": {
+        "type": "string",
+        "description": "Path to markdown file containing custom instructions (overrides inline)"
       }
     }
   }

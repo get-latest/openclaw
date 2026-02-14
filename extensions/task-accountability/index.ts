@@ -18,6 +18,9 @@ type TaskAccountabilityConfig = {
   issuePatterns?: string[];
   exemptPatterns?: string[];
   minTaskDurationSeconds?: number;
+  // Instruction configuration
+  instructions?: string | false; // Custom instructions, or false to disable
+  instructionsFile?: string; // Path to custom instructions file
 };
 
 // Patterns that indicate a GitHub issue reference
@@ -174,6 +177,43 @@ function checkAuditForIssueCommands(entries: AuditEntry[]): boolean {
   return false;
 }
 
+function expandPath(filePath: string): string {
+  if (filePath.startsWith("~/")) {
+    return path.join(os.homedir(), filePath.slice(2));
+  }
+  return filePath;
+}
+
+async function loadCustomInstructions(config: TaskAccountabilityConfig): Promise<string | null> {
+  // Explicitly disabled
+  if (config.instructions === false) {
+    return null;
+  }
+
+  // File takes precedence
+  if (config.instructionsFile) {
+    try {
+      const filePath = expandPath(config.instructionsFile);
+      const content = await fs.readFile(filePath, "utf-8");
+      return content.trim();
+    } catch (err) {
+      console.error(
+        `[task-accountability] Failed to load instructions file: ${config.instructionsFile}`,
+        err,
+      );
+      return INSTRUCTIONS; // Fall back to default
+    }
+  }
+
+  // Inline custom instructions
+  if (typeof config.instructions === "string") {
+    return config.instructions.trim();
+  }
+
+  // Default instructions
+  return INSTRUCTIONS;
+}
+
 const plugin = {
   id: "task-accountability",
   name: "Task Accountability",
@@ -189,10 +229,23 @@ const plugin = {
 
     api.logger.info(`Task accountability enabled (strictMode: ${strictMode})`);
 
+    // Cache instructions
+    let cachedInstructions: string | null = null;
+    let instructionsLoaded = false;
+
     // Layer 1: Inject instructions at agent start
-    api.on("before_agent_start", () => {
+    api.on("before_agent_start", async () => {
+      if (!instructionsLoaded) {
+        cachedInstructions = await loadCustomInstructions(config ?? {});
+        instructionsLoaded = true;
+      }
+
+      if (!cachedInstructions) {
+        return undefined; // Instructions disabled
+      }
+
       return {
-        prependContext: INSTRUCTIONS,
+        prependContext: cachedInstructions,
       };
     });
 
