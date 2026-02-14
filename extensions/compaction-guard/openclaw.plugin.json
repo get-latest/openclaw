@@ -1,0 +1,25 @@
+{
+  "id": "compaction-guard",
+  "name": "Compaction Guard",
+  "version": "0.1.0",
+  "description": "Preserves task context across memory compaction events",
+  "main": "index.ts",
+  "hooks": ["before_compaction", "after_compaction", "before_agent_start"],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "contextFile": {
+        "type": "string",
+        "description": "Path to save/restore context (default: memory/compaction-context.md)"
+      },
+      "recoveryPrompt": {
+        "type": "boolean",
+        "description": "Inject recovery prompt after compaction (default: true)"
+      },
+      "minMessagesForSnapshot": {
+        "type": "number",
+        "description": "Minimum messages to trigger snapshot (default: 10)"
+      }
+    }
+  }
+}

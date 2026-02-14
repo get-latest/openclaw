@@ -1,0 +1,8 @@
+{
+  "name": "@openclaw/plugin-compaction-guard",
+  "version": "0.1.0",
+  "description": "Preserves task context across memory compaction events",
+  "type": "module",
+  "main": "index.ts",
+  "dependencies": {}
+}
