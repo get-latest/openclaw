@@ -553,8 +553,9 @@ export const nodeHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "invalid params"));
       return;
     }
-    const p = params as Record<string, unknown>;
-    const nodeId = String(p.nodeId ?? "").trim();
+    const p = params;
+    const nodeIdRaw = p.nodeId;
+    const nodeId = typeof nodeIdRaw === "string" ? nodeIdRaw.trim() : "";
     if (!nodeId) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "nodeId required"));
       return;
